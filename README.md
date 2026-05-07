@@ -1,73 +1,189 @@
-# React + TypeScript + Vite
+# TaskAura
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+TaskAura es una aplicación web para gestionar tareas por usuario autenticado. Permite registrarse, iniciar sesión, crear tareas con título, descripción y fecha límite, marcarlas como completadas, editarlas, eliminarlas y enviar un resumen por email.
 
-Currently, two official plugins are available:
+## URL de producción
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+[Ver aplicacion en produccion](https://m4-luna-gomez.vercel.app/#/)
 
-## React Compiler
+Nota:
+La aplicación usa `HashRouter` para que las rutas funcionen correctamente en Vercel incluso al refrescar la página.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Funcionalidades
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Autenticación
+- Registro con email y contraseña
+- Login con email y contraseña
+- Login con Google
+- Logout
+- Protección de rutas privadas
+- Manejo visible de errores
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Gestión de tareas
+- Crear tareas
+- Listar tareas del usuario autenticado
+- Editar tareas
+- Eliminar tareas
+- Marcar tareas como completadas o pendientes
+- Asignar fecha límite
+- Persistencia en Firestore
+- Cada usuario solo puede ver sus propias tareas
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Email
+- Envío de resumen de tareas mediante botón
+- Integración con AWS SES
+- Uso de Vercel Functions para no exponer secretos en el frontend
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Testing
+- Test de componente para `TaskForm`
+- Test de componente para `EmailSummaryButton`
+- Test unitario para la generación del resumen
+
+### Deploy
+- Deploy en Vercel
+- Variables de entorno configuradas
+- URL pública funcional
+
+---
+
+## Tecnologías usadas
+
+- React
+- TypeScript
+- Vite
+- React Router DOM
+- Firebase Authentication
+- Cloud Firestore
+- AWS SES
+- Vercel Functions
+- Vitest
+- React Testing Library
+
+---
+
+## Decisiones arquitectónicas
+
+### Autenticación
+La autenticación se centralizó usando `Context` mediante `Authenticator` y `useAuth()`. Esto permite acceder al estado del usuario y a las acciones de login, registro y logout desde cualquier parte de la app.
+
+### Rutas protegidas
+Las rutas privadas usan `RequireAuth`, que impide acceder a tareas sin haber iniciado sesión.
+
+### Persistencia
+Las tareas se almacenan en Cloud Firestore y cada documento incluye `userId`. Esto permite filtrar por usuario y aplicar seguridad real desde Firestore.
+
+### Seguridad
+Las reglas de Firestore validan que cada usuario solo pueda leer y modificar sus propias tareas.
+
+### Emails
+El envío de emails se hace desde `/api/send-email` con una Vercel Function. De esta forma, las credenciales de AWS nunca quedan expuestas en el frontend.
+
+---
+
+## Instalacion local
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/luuunita/M4_LunaGomez.git
+cd M4_LunaGomez
+
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Instalar dependencias
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
+
+### 3. Crear archivo .env
+Crear un archivo .env en la raiz del proyecto usando como referencia .env.example
+
+### 4. Ejecutar frontend 
+
+```bash
+
+npm run dev
+```
+
+### 5. Ejecutar frontend + functions
+Para probar tambien el envio de emails
+```bash
+
+npx vercel dev
+```
+## Variables de entorno
+### Firebase
+
+```bash
+ VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_APP_ID=
+```
+
+AWS SES
+
+```bash 
+AWS_REGION=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+SES_FROM_EMAIL=
+```
+
+## Flujo de envio de emails
+
+- El usuario hace clic en Enviar mi resumen
+- El frontend construye un resumen con tareas pendientes, completadas y próximas fechas
+- Se hace un POST a /api/send-email
+- La Vercel Function usa AWS SES para enviar el correo
+- El frontend muestra éxito o error
+Importante:
+AWS SES está en modo sandbox, así que el envío puede estar limitado a identidades verificadas.
+
+## Seguridad de credenciales
+
+- .env está incluido en .gitignore
+- .env.example no contiene valores sensibles
+- Firebase usa variables de entorno
+- AWS SES usa variables de entorno privadas
+- No se exponen secretos en el frontend
+
+## Uso de IA en el proceso
+
+### Primer Prompt
+![Respuesta del chat](./src/assets/1Prompt.png)
+![Respuesta del chat](./src/assets/1.1Prompt.png)
+![Respuesta del chat](./src/assets/1Respuesta.png)
+
+### Segundo Prompt
+![Respuesta del chat](./src/assets/2Prompt.png)
+![Respuesta del chat](./src/assets/2.2Prompt.png)
+![Respuesta del chat](./src/assets/2Respuesta.png)
+![Respuesta del chat](./src/assets/2.2Respuesta.png)
+
+### Tercer Prompt
+![Respuesta del chat](./src/assets/3Prompt.png)
+![Respuesta del chat](./src/assets/3.3Prompt.png)
+![Respuesta del chat](./src/assets/3Respuesta.png)
+
+se utilizó como apoyo técnico durante el desarrollo para:
+
+- transformar requisitos funcionales algunos pasos
+- resolver integración con Firebase, Firestore, Vercel y AWS SES
+- estructurar testing
+- mejorar coherencia entre componentes, servicios y tipos
+- apoyar el diseño visual
+- redactar la documentación final
+
+## Limiraciones conocidas
+
+- AWS SES esta en sandbox, así que el envío puede estar limitado a identidades verificadas.
+- La app usa HashRouter para compatibilidad de rutas en Vercel.
+
+## Autora 
+Luna Gomez, Desarrolladora Fullstack junior.
+
+
