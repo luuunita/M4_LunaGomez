@@ -18,6 +18,7 @@ export type FirestoreTask = {
   description?: string;
   completed: boolean;
   userId: string;
+  dueDate?: string;
   createdAt?: unknown;
 };
 
@@ -39,11 +40,13 @@ export async function getTasksByUser(userId: string): Promise<FirestoreTask[]> {
 export async function addTask(input: {
   title: string;
   description: string;
+  dueDate: string;
   userId: string;
 }): Promise<string> {
   const docRef = await addDoc(collection(db, 'tasks'), {
     title: input.title,
     description: input.description,
+    dueDate: input.dueDate,
     completed: false,
     userId: input.userId,
     createdAt: serverTimestamp(),
@@ -65,13 +68,14 @@ export async function toggleTaskStatus(
 
 export async function updateTask(
   taskId: string,
-  input: { title: string; description: string },
+  input: { title: string; description: string; dueDate: string },
 ): Promise<void> {
   const taskRef = doc(db, 'tasks', taskId);
 
   await updateDoc(taskRef, {
     title: input.title,
     description: input.description,
+    dueDate: input.dueDate,
   });
 }
 

@@ -7,7 +7,7 @@ interface CardProps {
 
 function Card({ title, children }: CardProps) {
   return (
-    <section>
+    <section className="surface-card">
       <h2>{title}</h2>
       {children}
     </section>
@@ -15,3 +15,4 @@ function Card({ title, children }: CardProps) {
 }
 
 export default Card;
+

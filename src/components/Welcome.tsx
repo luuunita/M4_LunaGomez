@@ -5,7 +5,7 @@ interface WelcomeProps {
 
 function Welcome({ title, message }: WelcomeProps) {
   return (
-    <section>
+    <section className="hero-panel">
       <h1>{title}</h1>
       <p>{message}</p>
     </section>

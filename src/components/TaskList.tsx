@@ -11,6 +11,7 @@ interface TaskListProps {
     id: string,
     title: string,
     description: string,
+    dueDate: string,
   ) => Promise<void>;
 }
 
@@ -22,8 +23,8 @@ function TaskList({
   onEditTask,
 }: TaskListProps) {
   return (
-    <Card title="Tareas del dia">
-      <ul>
+    <Card title="Tareas del día">
+      <ul className="task-list">
         {tasks.map((task) => (
           <TaskItem
             key={task.id}
@@ -40,4 +41,5 @@ function TaskList({
 }
 
 export default TaskList;
+
 

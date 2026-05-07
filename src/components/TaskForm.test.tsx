@@ -13,8 +13,9 @@ describe('TaskForm', () => {
       screen.getByRole('button', { name: /agregar tarea/i }),
     );
 
-    expect(screen.getByText(/ingresa un titulo/i)).toBeInTheDocument();
-    expect(screen.getByText(/ingresa una descripcion/i)).toBeInTheDocument();
+    expect(screen.getByText(/ingresa un título/i)).toBeInTheDocument();
+    expect(screen.getByText(/ingresa una descripción/i)).toBeInTheDocument();
+    expect(screen.getByText(/selecciona una fecha/i)).toBeInTheDocument();
     expect(onAddTask).not.toHaveBeenCalled();
   });
 
@@ -24,13 +25,18 @@ describe('TaskForm', () => {
     render(<TaskForm onAddTask={onAddTask} />);
 
     await userEvent.type(
-      screen.getByRole('textbox', { name: /titulo/i }),
+      screen.getByRole('textbox', { name: /título/i }),
       'Estudiar testing',
     );
 
     await userEvent.type(
-      screen.getByRole('textbox', { name: /descripcion/i }),
+      screen.getByRole('textbox', { name: /descripción/i }),
       'Repasar Vitest y RTL',
+    );
+
+    await userEvent.type(
+      screen.getByLabelText(/fecha límite/i),
+      '2026-05-20',
     );
 
     await userEvent.click(
@@ -41,7 +47,9 @@ describe('TaskForm', () => {
       expect(onAddTask).toHaveBeenCalledWith(
         'Estudiar testing',
         'Repasar Vitest y RTL',
+        '2026-05-20',
       );
     });
   });
 });
+

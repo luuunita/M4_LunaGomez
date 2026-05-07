@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/Authenticator';
 import { getAuthErrorMessage } from '../features/auth/authErrors';
-
 
 interface RegisterFormState {
   email: string;
@@ -21,11 +20,11 @@ function validateRegister(form: RegisterFormState): FieldErrors<RegisterFormStat
   const errors: FieldErrors<RegisterFormState> = {};
 
   if (!form.email.trim() || !form.email.includes('@') || !form.email.includes('.')) {
-    errors.email = 'Ingresa un email valido.';
+    errors.email = 'Ingresa un email válido.';
   }
 
   if (!form.password.trim() || form.password.length < 6) {
-    errors.password = 'La contrasena debe tener al menos 6 caracteres.';
+    errors.password = 'La contraseña debe tener al menos 6 caracteres.';
   }
 
   return errors;
@@ -66,53 +65,80 @@ function Register() {
       setForm(initialRegisterForm);
       navigate('/tasks', { replace: true });
     } catch (error) {
-        setSubmitError(getAuthErrorMessage(error));
+      setSubmitError(getAuthErrorMessage(error));
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <section>
-      <h1>Registro</h1>
+    <section className="auth-page">
+      <div className="auth-card">
+        <div className="auth-copy">
+          <p className="auth-eyebrow">Nuevo espacio</p>
+          <h1>Registrarse</h1>
+          <p className="auth-subtitle">
+            Crea tu cuenta para empezar a organizar tus tareas, guardar progreso y
+            recibir resúmenes cuando lo necesites.
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit} noValidate>
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          value={form.email}
-          onChange={handleChange}
-          placeholder="Correo electronico"
-          aria-invalid={Boolean(errors.email)}
-          aria-describedby={errors.email ? 'register-email-error' : undefined}
-          disabled={isSubmitting}
-        />
-        {errors.email && <p id="register-email-error">{errors.email}</p>}
+        <form className="auth-form" onSubmit={handleSubmit} noValidate>
+          <label htmlFor="email">Correo electrónico</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="alguien@email.com"
+            aria-invalid={Boolean(errors.email)}
+            aria-describedby={errors.email ? 'register-email-error' : undefined}
+            disabled={isSubmitting}
+          />
+          {errors.email && (
+            <p className="field-message error-text" id="register-email-error">
+              {errors.email}
+            </p>
+          )}
 
-        <label htmlFor="password">Contrasena</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          value={form.password}
-          onChange={handleChange}
-          placeholder="Contrasena"
-          aria-invalid={Boolean(errors.password)}
-          aria-describedby={errors.password ? 'register-password-error' : undefined}
-          disabled={isSubmitting}
-        />
-        {errors.password && <p id="register-password-error">{errors.password}</p>}
+          <label htmlFor="password">Contraseña</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+            placeholder="Crea una contraseña"
+            aria-invalid={Boolean(errors.password)}
+            aria-describedby={errors.password ? 'register-password-error' : undefined}
+            disabled={isSubmitting}
+          />
+          {errors.password && (
+            <p className="field-message error-text" id="register-password-error">
+              {errors.password}
+            </p>
+          )}
 
-        {submitError && <div role="alert">{submitError}</div>}
+          {submitError && (
+            <div className="status-banner error-banner" role="alert">
+              {submitError}
+            </div>
+          )}
 
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Registrando...' : 'Crear cuenta'}
-        </button>
-      </form>
+          <button className="auth-primary-button" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Registrando...' : 'Crear cuenta'}
+          </button>
+
+          <p className="auth-footer">
+            ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
+          </p>
+        </form>
+      </div>
     </section>
   );
 }
 
 export default Register;
+
+

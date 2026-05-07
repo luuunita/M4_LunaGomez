@@ -9,9 +9,11 @@ interface AppLayoutProps {
 
 function AppLayout({ user, onLogout }: AppLayoutProps) {
   return (
-    <main>
+    <main className="app-shell">
       <Navbar user={user} onLogout={onLogout} />
-      <Outlet />
+      <section className="page-shell">
+        <Outlet />
+      </section>
     </main>
   );
 }
