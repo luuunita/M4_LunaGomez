@@ -1,8 +1,13 @@
 function About() {
   return (
-    <section>
-      <h1>Acerca de</h1>
-      <p>Esta SPA fue creada con React, TypeScript y React Router.</p>
+    <section className="hero-panel">
+      <p className="auth-eyebrow">Sobre la aplicación</p>
+      <h1>Acerca de TaskAura</h1>
+      <p>
+        TaskAura es una SPA desarrollada con React, TypeScript, Firebase,
+        Firestore, Vercel Functions y AWS SES para gestionar tareas, fechas
+        límite y resúmenes por correo.
+      </p>
     </section>
   );
 }

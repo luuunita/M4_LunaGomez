@@ -114,7 +114,7 @@ function Tasks() {
   return (
     <main className="tasks-page">
       <Welcome
-        title="Panel de tareas"
+        title="TaskAura"
         message="Gestiona tus pendientes, organiza fechas clave y comparte un resumen por correo cuando lo necesites."
       />
 

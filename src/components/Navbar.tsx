@@ -11,7 +11,7 @@ function Navbar({ user, onLogout }: NavbarProps) {
     <nav className="topbar">
       <div className="brand-mark">
         <span className="brand-dot" />
-        <span>TaskFlow</span>
+        <span>TaskAura</span>
       </div>
 
       <div className="nav-links">
@@ -23,7 +23,7 @@ function Navbar({ user, onLogout }: NavbarProps) {
       <div className="nav-actions">
         {user ? (
           <button type="button" onClick={() => void onLogout()}>
-            Cerrar sesion
+            Cerrar sesión
           </button>
         ) : (
           <>
