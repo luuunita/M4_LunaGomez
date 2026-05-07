@@ -1,11 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import TaskForm from '../components/TaskForm';
 import TaskList from '../components/TaskList';
 import Welcome from '../components/Welcome';
-import type { Task } from '../types/task';
+import { useAuth } from '../features/auth/Authenticator';
+import { useTasks } from '../hooks/useTasks';
+import {
+  addTask,
+  deleteTask,
+  toggleTaskStatus,
+  updateTask,
+} from '../services/tasks';
+import type { FirestoreTask } from '../services/tasks';
+import EmailSummaryButton from '../components/EmailSummaryButton';
 
-function getStatusLabel(status: Task['status']): string {
-  if (status === 'pending') {
+
+function getStatusLabel(status: boolean): string {
+  if (!status) {
     return 'Pendiente';
   }
 
@@ -13,65 +23,52 @@ function getStatusLabel(status: Task['status']): string {
 }
 
 function Tasks() {
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    const savedTasks = window.localStorage.getItem('tasks');
+  const { user } = useAuth();
 
-    if (savedTasks) {
-      return JSON.parse(savedTasks) as Task[];
-    }
-
-    return [
-      {
-        id: 1,
-        title: 'Revisar correos de clientes',
-        description: 'Responder mensajes pendientes antes del mediodia',
-        status: 'pending',
-      },
-      {
-        id: 2,
-        title: 'Actualizar reporte diario',
-        status: 'done',
-      },
-    ];
-  });
-
-  const [saveMessage, setSaveMessage] = useState('');
+  const uid = user?.uid ?? '';
+  const { tasks, setTasks, loading, error } = useTasks(uid);
 
   useEffect(() => {
     document.title = `Tareas: ${tasks.length}`;
   }, [tasks]);
 
-  useEffect(() => {
-    window.localStorage.setItem('tasks', JSON.stringify(tasks));
-    setSaveMessage('Cambios guardados localmente');
+  const handleAddTask = async (title: string, description: string): Promise<void> => {
+    if (!user) {
+      return;
+    }
 
-    const timeoutId = window.setTimeout(() => {
-      setSaveMessage('');
-    }, 2000);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [tasks]);
-
-  const handleAddTask = (title: string, description: string): void => {
-    const newTask: Task = {
-      id: Date.now(),
+    const taskId = await addTask({
       title,
       description,
-      status: 'pending',
+      userId: user.uid,
+    });
+
+    const newTask: FirestoreTask = {
+      id: taskId,
+      title,
+      description,
+      completed: false,
+      userId: user.uid,
     };
 
-    setTasks((prevTasks) => [...prevTasks, newTask]);
+    setTasks((prevTasks) => [newTask, ...prevTasks]);
   };
 
-  const handleToggleTask = (id: number): void => {
+  const handleToggleTask = async (id: string): Promise<void> => {
+    const targetTask = tasks.find((task) => task.id === id);
+
+    if (!targetTask) {
+      return;
+    }
+
+    await toggleTaskStatus(id, targetTask.completed);
+
     setTasks((prevTasks) =>
       prevTasks.map((task) => {
         if (task.id === id) {
           return {
             ...task,
-            status: task.status === 'pending' ? 'done' : 'pending',
+            completed: !task.completed,
           };
         }
 
@@ -80,15 +77,18 @@ function Tasks() {
     );
   };
 
-  const handleDeleteTask = (id: number): void => {
+  const handleDeleteTask = async (id: string): Promise<void> => {
+    await deleteTask(id);
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
   };
 
-  const handleEditTask = (
-    id: number,
+  const handleEditTask = async (
+    id: string,
     title: string,
     description: string,
-  ): void => {
+  ): Promise<void> => {
+    await updateTask(id, { title, description });
+
     setTasks((prevTasks) =>
       prevTasks.map((task) => {
         if (task.id === id) {
@@ -111,19 +111,27 @@ function Tasks() {
         message="Gestiona las tareas diarias de tu equipo en un solo lugar"
       />
 
-      {saveMessage && <p>{saveMessage}</p>}
+      {user?.email && (
+  <EmailSummaryButton tasks={tasks} userEmail={user.email} />
+)}
 
       <TaskForm onAddTask={handleAddTask} />
 
-      <TaskList
-        tasks={tasks}
-        getStatusLabel={getStatusLabel}
-        onToggleTask={handleToggleTask}
-        onDeleteTask={handleDeleteTask}
-        onEditTask={handleEditTask}
-      />
+      {loading && <p>Cargando tareas...</p>}
+      {error && <p>{error}</p>}
+
+      {!loading && !error && (
+        <TaskList
+          tasks={tasks}
+          getStatusLabel={getStatusLabel}
+          onToggleTask={handleToggleTask}
+          onDeleteTask={handleDeleteTask}
+          onEditTask={handleEditTask}
+        />
+      )}
     </main>
   );
 }
 
 export default Tasks;
+

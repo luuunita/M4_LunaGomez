@@ -1,13 +1,17 @@
-import type { Task } from '../types/task';
+import type { FirestoreTask } from '../services/tasks';
 import Card from './Card';
 import TaskItem from './TaskItem';
 
 interface TaskListProps {
-  tasks: Task[];
-  getStatusLabel: (status: Task['status']) => string;
-  onToggleTask: (id: number) => void;
-  onDeleteTask: (id: number) => void;
-  onEditTask: (id: number, title: string, description: string) => void;
+  tasks: FirestoreTask[];
+  getStatusLabel: (status: boolean) => string;
+  onToggleTask: (id: string) => Promise<void>;
+  onDeleteTask: (id: string) => Promise<void>;
+  onEditTask: (
+    id: string,
+    title: string,
+    description: string,
+  ) => Promise<void>;
 }
 
 function TaskList({
@@ -24,7 +28,7 @@ function TaskList({
           <TaskItem
             key={task.id}
             task={task}
-            statusLabel={getStatusLabel(task.status)}
+            statusLabel={getStatusLabel(task.completed)}
             onToggleTask={onToggleTask}
             onDeleteTask={onDeleteTask}
             onEditTask={onEditTask}

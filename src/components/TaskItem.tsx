@@ -1,12 +1,16 @@
 import { useState } from 'react';
-import type { Task } from '../types/task';
+import type { FirestoreTask } from '../services/tasks';
 
 interface TaskItemProps {
-  task: Task;
+  task: FirestoreTask;
   statusLabel: string;
-  onToggleTask: (id: number) => void;
-  onDeleteTask: (id: number) => void;
-  onEditTask: (id: number, title: string, description: string) => void;
+  onToggleTask: (id: string) => Promise<void>;
+  onDeleteTask: (id: string) => Promise<void>;
+  onEditTask: (
+    id: string,
+    title: string,
+    description: string,
+  ) => Promise<void>;
 }
 
 function TaskItem({
@@ -20,12 +24,12 @@ function TaskItem({
   const [editedTitle, setEditedTitle] = useState(task.title);
   const [editedDescription, setEditedDescription] = useState(task.description ?? '');
 
-  const handleSaveEdit = (): void => {
+  const handleSaveEdit = async (): Promise<void> => {
     if (editedTitle === '' || editedDescription === '') {
       return;
     }
 
-    onEditTask(task.id, editedTitle, editedDescription);
+    await onEditTask(task.id, editedTitle, editedDescription);
     setIsEditing(false);
   };
 
@@ -58,8 +62,12 @@ function TaskItem({
           placeholder="Nueva descripcion"
         />
 
-        <button onClick={handleSaveEdit}>Guardar cambios</button>
-        <button onClick={handleCancelEdit}>Cancelar</button>
+        <button type="button" onClick={() => void handleSaveEdit()}>
+          Guardar cambios
+        </button>
+        <button type="button" onClick={handleCancelEdit}>
+          Cancelar
+        </button>
       </li>
     );
   }
@@ -70,15 +78,15 @@ function TaskItem({
       <p>Estado: {statusLabel}</p>
       {task.description && <p>Descripcion: {task.description}</p>}
 
-      <button onClick={() => onToggleTask(task.id)}>
-        {task.status === 'pending'
-          ? 'Marcar como completada'
-          : 'Marcar como pendiente'}
+      <button type="button" onClick={() => void onToggleTask(task.id)}>
+        {task.completed ? 'Marcar como pendiente' : 'Marcar como completada'}
       </button>
 
-      <button onClick={handleStartEdit}>Editar tarea</button>
+      <button type="button" onClick={handleStartEdit}>
+        Editar tarea
+      </button>
 
-      <button onClick={() => onDeleteTask(task.id)}>
+      <button type="button" onClick={() => void onDeleteTask(task.id)}>
         Eliminar tarea
       </button>
     </li>
