@@ -26,6 +26,9 @@ function Tasks() {
 
   const uid = user?.uid ?? '';
   const { tasks, setTasks, loading, error } = useTasks(uid);
+  const completedTasks = tasks.filter((task) => task.completed).length;
+  const pendingTasks = tasks.length - completedTasks;
+  const nextTask = tasks.find((task) => !task.completed);
 
   useEffect(() => {
     document.title = `Tareas: ${tasks.length}`;
@@ -117,6 +120,29 @@ function Tasks() {
         title="TaskAura"
         message="Gestiona tus pendientes, organiza fechas clave y comparte un resumen por correo cuando lo necesites."
       />
+
+      <section className="task-overview" aria-label="Resumen de tareas">
+        <article className="metric-card">
+          <span>Total</span>
+          <strong>{tasks.length}</strong>
+          <p>Tareas registradas</p>
+        </article>
+        <article className="metric-card metric-card--accent">
+          <span>Pendientes</span>
+          <strong>{pendingTasks}</strong>
+          <p>Por completar</p>
+        </article>
+        <article className="metric-card">
+          <span>Completadas</span>
+          <strong>{completedTasks}</strong>
+          <p>Progreso logrado</p>
+        </article>
+        <article className="metric-card metric-card--wide">
+          <span>Siguiente foco</span>
+          <strong>{nextTask?.title ?? 'Sin pendientes'}</strong>
+          <p>{nextTask?.dueDate ? `Fecha limite: ${nextTask.dueDate}` : 'Disfruta el espacio libre.'}</p>
+        </article>
+      </section>
 
       {user?.email && (
         <EmailSummaryButton tasks={tasks} userEmail={user.email} />

@@ -49,26 +49,32 @@ function EmailSummaryButton({
 
   return (
     <div className="summary-bar">
-      <button
-        type="button"
-        onClick={() => void handleSend()}
-        disabled={status === 'loading'}
-      >
-        {status === 'loading' ? 'Enviando...' : 'Enviar mi resumen'}
-      </button>
+      <div className="summary-copy">
+        <span>Resumen inteligente</span>
+        <p>Recibe una vista rapida de tus pendientes en tu correo.</p>
+      </div>
 
-      {status === 'success' && (
-        <span className="success-text">Email enviado.</span>
-      )}
+      <div className="summary-actions">
+        <button
+          type="button"
+          onClick={() => void handleSend()}
+          disabled={status === 'loading'}
+        >
+          {status === 'loading' ? 'Enviando...' : 'Enviar mi resumen'}
+        </button>
 
-      {status === 'error' && (
-        <span className="error-text">{errorMessage}</span>
-      )}
+        {status === 'success' && (
+          <span className="success-text">Email enviado.</span>
+        )}
+
+        {status === 'error' && (
+          <span className="error-text">{errorMessage}</span>
+        )}
+      </div>
     </div>
   );
 }
 
 export default EmailSummaryButton;
-
 
 

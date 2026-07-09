@@ -65,18 +65,23 @@ function TaskItem({
   if (isEditing) {
     return (
       <li className="task-item task-item-editing">
+        <div className="edit-header">
+          <span>Editando tarea</span>
+          <strong>{task.title}</strong>
+        </div>
+
         <input
           type="text"
           value={editedTitle}
           onChange={(event) => setEditedTitle(event.target.value)}
-          placeholder="Nuevo título"
+          placeholder="Nuevo titulo"
         />
 
         <input
           type="text"
           value={editedDescription}
           onChange={(event) => setEditedDescription(event.target.value)}
-          placeholder="Nueva descripción"
+          placeholder="Nueva descripcion"
         />
 
         <input
@@ -85,30 +90,43 @@ function TaskItem({
           onChange={(event) => setEditedDueDate(event.target.value)}
         />
 
-        <button type="button" onClick={() => void handleSaveEdit()}>
-          Guardar cambios
-        </button>
-        <button type="button" onClick={handleCancelEdit}>
-          Cancelar
-        </button>
+        <div className="task-actions">
+          <button type="button" onClick={() => void handleSaveEdit()}>
+            Guardar cambios
+          </button>
+          <button type="button" onClick={handleCancelEdit}>
+            Cancelar
+          </button>
+        </div>
       </li>
     );
   }
 
   return (
-    <li className="task-item">
+    <li className={`task-item ${task.completed ? 'task-item--done' : ''}`}>
       <div className="task-item-head">
-        <h3>{task.title}</h3>
+        <div>
+          <p className="task-kicker">Tarea</p>
+          <h3>{task.title}</h3>
+        </div>
         <span className={`task-status ${task.completed ? 'done' : 'pending'}`}>
           {statusLabel}
         </span>
       </div>
 
-      {task.description && (
-        <p className="task-description">Descripción: {task.description}</p>
-      )}
+      <div className="task-meta">
+        {task.description && (
+          <p>
+            <span>Descripcion</span>
+            {task.description}
+          </p>
+        )}
 
-      <p className="task-description">Fecha límite: {formatDueDate(task.dueDate)}</p>
+        <p>
+          <span>Fecha limite</span>
+          {formatDueDate(task.dueDate)}
+        </p>
+      </div>
 
       <div className="task-actions">
         <button type="button" onClick={() => void onToggleTask(task.id)}>
@@ -128,6 +146,3 @@ function TaskItem({
 }
 
 export default TaskItem;
-
-
-

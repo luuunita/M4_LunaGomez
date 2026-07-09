@@ -22,8 +22,20 @@ function TaskList({
   onDeleteTask,
   onEditTask,
 }: TaskListProps) {
+  if (tasks.length === 0) {
+    return (
+      <Card title="Tareas del dia">
+        <div className="empty-state">
+          <span aria-hidden="true">TA</span>
+          <h3>Tu tablero esta limpio</h3>
+          <p>Agrega una tarea para empezar a construir tu flujo del dia.</p>
+        </div>
+      </Card>
+    );
+  }
+
   return (
-    <Card title="Tareas del día">
+    <Card title="Tareas del dia">
       <ul className="task-list">
         {tasks.map((task) => (
           <TaskItem
@@ -41,5 +53,3 @@ function TaskList({
 }
 
 export default TaskList;
-
-
